@@ -59,7 +59,9 @@ class AnimatedChild extends AnimatedWidget {
   @override
   Widget build(BuildContext context) {
     final Animation<double> animation = listenable as Animation<double>;
-    bool dark = Theme.of(context).brightness == Brightness.dark;
+    bool dark = Theme
+        .of(context)
+        .brightness == Brightness.dark;
 
     void performAction([bool isLong = false]) {
       if (onTap != null && !isLong) {
@@ -107,7 +109,7 @@ class AnimatedChild extends AnimatedWidget {
             child: InkWell(
               onTap: performAction,
               onLongPress:
-                  onLongPress == null ? null : () => performAction(true),
+              onLongPress == null ? null : () => performAction(true),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   vertical: 5.0,
@@ -128,9 +130,9 @@ class AnimatedChild extends AnimatedWidget {
           heroTag: heroTag,
           onPressed: performAction,
           backgroundColor:
-              backgroundColor ?? (dark ? Colors.grey[800] : Colors.grey[50]),
+          backgroundColor ?? (dark ? Colors.grey[800] : Colors.grey[50]),
           foregroundColor:
-              foregroundColor ?? (dark ? Colors.white : Colors.black),
+          foregroundColor ?? (dark ? Colors.white : Colors.black),
           elevation: elevation ?? 6.0,
           shape: shape,
           child: child,
@@ -156,46 +158,46 @@ class AnimatedChild extends AnimatedWidget {
           child: (onLongPress == null)
               ? button
               : FittedBox(
-                  child: GestureDetector(
-                    onLongPress: () => performAction(true),
-                    child: button,
-                  ),
-                ),
+            child: GestureDetector(
+              onLongPress: () => performAction(true),
+              child: button,
+            ),
+          ),
         )
     ];
 
     Widget buildColumnOrRow(bool isColumn,
         {CrossAxisAlignment? crossAxisAlignment,
-        MainAxisAlignment? mainAxisAlignment,
-        required List<Widget> children,
-        MainAxisSize? mainAxisSize}) {
+          MainAxisAlignment? mainAxisAlignment,
+          required List<Widget> children,
+          MainAxisSize? mainAxisSize}) {
       return isColumn
-          ? Column(
-              mainAxisSize: mainAxisSize ?? MainAxisSize.max,
-              mainAxisAlignment: mainAxisAlignment ?? MainAxisAlignment.start,
-              crossAxisAlignment:
-                  crossAxisAlignment ?? CrossAxisAlignment.center,
-              children: children,
-            )
+          ? SingleChildScrollView(child: Column(
+        mainAxisSize: mainAxisSize ?? MainAxisSize.max,
+        mainAxisAlignment: mainAxisAlignment ?? MainAxisAlignment.start,
+        crossAxisAlignment:
+        crossAxisAlignment ?? CrossAxisAlignment.center,
+        children: children,
+      ),)
           : Row(
-              mainAxisSize: mainAxisSize ?? MainAxisSize.max,
-              mainAxisAlignment: mainAxisAlignment ?? MainAxisAlignment.start,
-              crossAxisAlignment:
-                  crossAxisAlignment ?? CrossAxisAlignment.center,
-              children: children,
-            );
+        mainAxisSize: mainAxisSize ?? MainAxisSize.max,
+        mainAxisAlignment: mainAxisAlignment ?? MainAxisAlignment.start,
+        crossAxisAlignment:
+        crossAxisAlignment ?? CrossAxisAlignment.center,
+        children: children,
+      );
     }
 
     return visible
         ? Container(
-            margin: margin,
-            child: buildColumnOrRow(
-              useColumn,
-              mainAxisSize: MainAxisSize.min,
-              children:
-                  switchLabelPosition ? children.reversed.toList() : children,
-            ),
-          )
+      margin: margin,
+      child: buildColumnOrRow(
+        useColumn,
+        mainAxisSize: MainAxisSize.min,
+        children:
+        switchLabelPosition ? children.reversed.toList() : children,
+      ),
+    )
         : Container();
   }
 }

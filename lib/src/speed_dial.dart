@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import '../flutter_speed_dial.dart';
 import 'animated_child.dart';
 import 'global_key_extension.dart';
 import 'animated_floating_button.dart';
@@ -20,6 +22,12 @@ class SpeedDial extends StatefulWidget {
 
   /// Used to get the button hidden on scroll. See examples for more info.
   final bool visible;
+
+  /// Max height
+  final double? maxHeight;
+
+  /// set scroll direction
+  final bool reverseScroll;
 
   /// The curve used to animate the button on scrolling.
   final Curve curve;
@@ -218,6 +226,8 @@ class SpeedDial extends StatefulWidget {
     this.spaceBetweenChildren,
     this.spacing,
     this.animationCurve,
+    this.maxHeight,
+    this.reverseScroll = false,
   }) : super(key: key);
 
   @override
@@ -357,8 +367,8 @@ class _SpeedDialState extends State<SpeedDial>
       if (!mounted) return;
 
       _controller.forward();
-      if (widget.renderOverlay) Overlay.of(context).insert(backgroundOverlay!);
-      Overlay.of(context).insert(overlayEntry!);
+      if (widget.renderOverlay) Overlay.of(context)?.insert(backgroundOverlay!);
+      Overlay.of(context)?.insert(overlayEntry!);
     }
 
     if (!mounted) return;
@@ -458,32 +468,33 @@ class _SpeedDialState extends State<SpeedDial>
     var animatedFloatingButton = AnimatedBuilder(
       animation: _controller,
       builder: (context, ch) => CompositedTransformTarget(
-          link: _layerLink,
-          key: dialKey,
-          child: AnimatedFloatingButton(
-            visible: widget.visible,
-            tooltip: widget.tooltip,
-            mini: widget.mini,
-            dialRoot: widget.dialRoot != null
-                ? widget.dialRoot!(context, _open, _toggleChildren)
-                : null,
-            backgroundColor: widget.backgroundColor != null
-                ? backgroundColorTween.lerp(_controller.value)
-                : null,
-            foregroundColor: widget.foregroundColor != null
-                ? foregroundColorTween.lerp(_controller.value)
-                : null,
-            elevation: widget.elevation,
-            onLongPress: _toggleChildren,
-            callback: (_open || widget.onPress == null)
-                ? _toggleChildren
-                : widget.onPress,
-            size: widget.buttonSize,
-            label: widget.label != null ? label : null,
-            heroTag: widget.heroTag,
-            shape: widget.shape,
-            child: child,
-          )),
+        link: _layerLink,
+        key: dialKey,
+        child: AnimatedFloatingButton(
+          visible: widget.visible,
+          tooltip: widget.tooltip,
+          mini: widget.mini,
+          dialRoot: widget.dialRoot != null
+              ? widget.dialRoot!(context, _open, _toggleChildren)
+              : null,
+          backgroundColor: widget.backgroundColor != null
+              ? backgroundColorTween.lerp(_controller.value)
+              : null,
+          foregroundColor: widget.foregroundColor != null
+              ? foregroundColorTween.lerp(_controller.value)
+              : null,
+          elevation: widget.elevation,
+          onLongPress: _toggleChildren,
+          callback: (_open || widget.onPress == null)
+              ? _toggleChildren
+              : widget.onPress,
+          size: widget.buttonSize,
+          label: widget.label != null ? label : null,
+          heroTag: widget.heroTag,
+          shape: widget.shape,
+          child: child,
+        ),
+      ),
     );
 
     return animatedFloatingButton;
@@ -587,95 +598,106 @@ class _ChildrensOverlay extends StatelessWidget {
       fit: StackFit.loose,
       children: [
         Positioned(
-            child: CompositedTransformFollower(
-          followerAnchor: widget.direction.isDown
-              ? widget.switchLabelPosition
-                  ? Alignment.topLeft
-                  : Alignment.topRight
-              : widget.direction.isUp
-                  ? widget.switchLabelPosition
-                      ? Alignment.bottomLeft
-                      : Alignment.bottomRight
-                  : widget.direction.isLeft
-                      ? Alignment.centerRight
-                      : widget.direction.isRight
-                          ? Alignment.centerLeft
-                          : Alignment.center,
-          offset: widget.direction.isDown
-              ? Offset(
-                  (widget.switchLabelPosition ||
-                              dialKey.globalPaintBounds == null
-                          ? 0
-                          : dialKey.globalPaintBounds!.size.width) +
-                      max(widget.childrenButtonSize.height - 56, 0) / 2,
-                  dialKey.globalPaintBounds!.size.height)
-              : widget.direction.isUp
-                  ? Offset(
-                      (widget.switchLabelPosition ||
-                                  dialKey.globalPaintBounds == null
-                              ? 0
-                              : dialKey.globalPaintBounds!.size.width) +
-                          max(widget.childrenButtonSize.width - 56, 0) / 2,
-                      0)
-                  : widget.direction.isLeft
-                      ? Offset(
-                          -10.0,
-                          dialKey.globalPaintBounds == null
-                              ? 0
-                              : dialKey.globalPaintBounds!.size.height / 2)
-                      : widget.direction.isRight &&
-                              dialKey.globalPaintBounds != null
-                          ? Offset(dialKey.globalPaintBounds!.size.width + 12,
-                              dialKey.globalPaintBounds!.size.height / 2)
-                          : const Offset(-10.0, 0.0),
-          link: layerLink,
-          showWhenUnlinked: false,
-          child: Material(
-            type: MaterialType.transparency,
-            child: Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: widget.direction.isUp || widget.direction.isDown
-                    ? max(widget.buttonSize.width - 56, 0) / 2
-                    : 0,
-              ),
-              margin: widget.spacing != null
-                  ? EdgeInsets.fromLTRB(
-                      widget.direction.isRight ? widget.spacing! : 0,
-                      widget.direction.isDown ? widget.spacing! : 0,
-                      widget.direction.isLeft ? widget.spacing! : 0,
-                      widget.direction.isUp ? widget.spacing! : 0,
-                    )
-                  : null,
-              child: _buildColumnOrRow(
-                widget.direction.isUp || widget.direction.isDown,
-                crossAxisAlignment: widget.switchLabelPosition
-                    ? CrossAxisAlignment.start
-                    : CrossAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: widget.direction.isDown || widget.direction.isRight
-                    ? _getChildrenList().reversed.toList()
-                    : _getChildrenList(),
+          height: widget.maxHeight ??
+              MediaQuery.of(context).size.height -
+                  (widget.childrenButtonSize.height * 3),
+          child: CompositedTransformFollower(
+            followerAnchor: widget.direction.isDown
+                ? widget.switchLabelPosition
+                    ? Alignment.topLeft
+                    : Alignment.topRight
+                : widget.direction.isUp
+                    ? widget.switchLabelPosition
+                        ? Alignment.bottomLeft
+                        : Alignment.bottomRight
+                    : widget.direction.isLeft
+                        ? Alignment.centerRight
+                        : widget.direction.isRight
+                            ? Alignment.centerLeft
+                            : Alignment.center,
+            offset: widget.direction.isDown
+                ? Offset(
+                    (widget.switchLabelPosition ||
+                                dialKey.globalPaintBounds == null
+                            ? 0
+                            : dialKey.globalPaintBounds!.size.width) +
+                        max(widget.childrenButtonSize.height - 56, 0) / 2,
+                    dialKey.globalPaintBounds!.size.height)
+                : widget.direction.isUp
+                    ? Offset(
+                        (widget.switchLabelPosition ||
+                                    dialKey.globalPaintBounds == null
+                                ? 0
+                                : dialKey.globalPaintBounds!.size.width) +
+                            max(widget.childrenButtonSize.width - 56, 0) / 2,
+                        0)
+                    : widget.direction.isLeft
+                        ? Offset(
+                            -10.0,
+                            dialKey.globalPaintBounds == null
+                                ? 0
+                                : dialKey.globalPaintBounds!.size.height / 2)
+                        : widget.direction.isRight &&
+                                dialKey.globalPaintBounds != null
+                            ? Offset(dialKey.globalPaintBounds!.size.width + 12,
+                                dialKey.globalPaintBounds!.size.height / 2)
+                            : const Offset(-10.0, 0.0),
+            link: layerLink,
+            showWhenUnlinked: false,
+            child: Material(
+              type: MaterialType.transparency,
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: widget.direction.isUp || widget.direction.isDown
+                      ? max(widget.buttonSize.width - 56, 0) / 2
+                      : 0,
+                ),
+                margin: widget.spacing != null
+                    ? EdgeInsets.fromLTRB(
+                        widget.direction.isRight ? widget.spacing! : 0,
+                        widget.direction.isDown ? widget.spacing! : 0,
+                        widget.direction.isLeft ? widget.spacing! : 0,
+                        widget.direction.isUp ? widget.spacing! : 0,
+                      )
+                    : null,
+                child: _buildColumnOrRow(
+                  widget.direction.isUp || widget.direction.isDown,
+                  crossAxisAlignment: widget.switchLabelPosition
+                      ? CrossAxisAlignment.start
+                      : CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  reverseScroll: widget.reverseScroll,
+                  children: widget.direction.isDown || widget.direction.isRight
+                      ? _getChildrenList().reversed.toList()
+                      : _getChildrenList(),
+                ),
               ),
             ),
           ),
-        )),
+        ),
       ],
     );
   }
 }
 
-Widget _buildColumnOrRow(bool isColumn,
-    {CrossAxisAlignment? crossAxisAlignment,
-    MainAxisAlignment? mainAxisAlignment,
-    required List<Widget> children,
-    MainAxisSize? mainAxisSize}) {
+Widget _buildColumnOrRow(
+  bool isColumn, {
+  CrossAxisAlignment? crossAxisAlignment,
+  MainAxisAlignment? mainAxisAlignment,
+  required List<Widget> children,
+  MainAxisSize? mainAxisSize,
+  bool reverseScroll = false,
+}) {
   return isColumn
-      ? Column(
-          mainAxisSize: mainAxisSize ?? MainAxisSize.max,
-          mainAxisAlignment: mainAxisAlignment ?? MainAxisAlignment.start,
-          crossAxisAlignment: crossAxisAlignment ?? CrossAxisAlignment.center,
-          children: children,
-        )
+      ? CustomSingleChildScrollView(
+          reverse: reverseScroll,
+          hitTestBehavior: HitTestBehavior.translucent,
+          child: Column(
+            mainAxisSize: mainAxisSize ?? MainAxisSize.max,
+            mainAxisAlignment: mainAxisAlignment ?? MainAxisAlignment.start,
+            crossAxisAlignment: crossAxisAlignment ?? CrossAxisAlignment.center,
+            children: children,
+          ))
       : Row(
           mainAxisSize: mainAxisSize ?? MainAxisSize.max,
           mainAxisAlignment: mainAxisAlignment ?? MainAxisAlignment.start,

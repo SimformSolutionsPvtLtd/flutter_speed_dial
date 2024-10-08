@@ -6,6 +6,7 @@ void main() => runApp(const MyApp());
 
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
+
   @override
   _MyAppState createState() => _MyAppState();
 }
@@ -17,27 +18,30 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     const appTitle = 'Flutter Speed Dial Example';
     return ValueListenableBuilder<ThemeMode>(
-        valueListenable: theme,
-        builder: (context, value, child) => MaterialApp(
-              title: appTitle,
-              home: MyHomePage(theme: theme),
-              debugShowCheckedModeBanner: false,
-              theme: ThemeData(
-                brightness: Brightness.light,
-                primaryColor: Colors.blue,
-              ),
-              darkTheme: ThemeData(
-                brightness: Brightness.dark,
-                primaryColor: Colors.lightBlue[900],
-              ),
-              themeMode: value,
-            ));
+      valueListenable: theme,
+      builder: (context, value, child) => MaterialApp(
+        title: appTitle,
+        home: MyHomePage(theme: theme),
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          brightness: Brightness.light,
+          primaryColor: Colors.blue,
+        ),
+        darkTheme: ThemeData(
+          brightness: Brightness.dark,
+          primaryColor: Colors.lightBlue[900],
+        ),
+        themeMode: value,
+      ),
+    );
   }
 }
 
 class MyHomePage extends StatefulWidget {
   final ValueNotifier<ThemeMode> theme;
+
   const MyHomePage({Key? key, required this.theme}) : super(key: key);
+
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -67,6 +71,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     FloatingActionButtonLocation.centerTop,
     FloatingActionButtonLocation.endTop,
   ];
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -163,26 +168,29 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                               iconSize: 20,
                               underline: const SizedBox(),
                               onChanged: (sdo) {
-                                setState(() {
-                                  speedDialDirection = sdo!;
-                                  selectedfABLocation = (sdo.isUp &&
-                                              selectedfABLocation.value
-                                                  .contains("Top")) ||
-                                          (sdo.isLeft &&
-                                              selectedfABLocation.value
-                                                  .contains("start"))
-                                      ? FloatingActionButtonLocation.endDocked
-                                      : sdo.isDown &&
-                                              !selectedfABLocation.value
-                                                  .contains("Top")
-                                          ? FloatingActionButtonLocation.endTop
-                                          : sdo.isRight &&
-                                                  selectedfABLocation.value
-                                                      .contains("end")
-                                              ? FloatingActionButtonLocation
-                                                  .startDocked
-                                              : selectedfABLocation;
-                                });
+                                setState(
+                                  () {
+                                    speedDialDirection = sdo!;
+                                    selectedfABLocation = (sdo.isUp &&
+                                                selectedfABLocation.value
+                                                    .contains("Top")) ||
+                                            (sdo.isLeft &&
+                                                selectedfABLocation.value
+                                                    .contains("start"))
+                                        ? FloatingActionButtonLocation.endDocked
+                                        : sdo.isDown &&
+                                                !selectedfABLocation.value
+                                                    .contains("Top")
+                                            ? FloatingActionButtonLocation
+                                                .endTop
+                                            : sdo.isRight &&
+                                                    selectedfABLocation.value
+                                                        .contains("end")
+                                                ? FloatingActionButtonLocation
+                                                    .startDocked
+                                                : selectedfABLocation;
+                                  },
+                                );
                               },
                               selectedItemBuilder: (BuildContext context) {
                                 return SpeedDialDirection.values
@@ -419,12 +427,11 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                   );
                 }
               : null,
-          buttonSize:
-              buttonSize, // it's the SpeedDial size which defaults to 56 itself
+          buttonSize: buttonSize,
+          // it's the SpeedDial size which defaults to 56 itself
           // iconTheme: IconThemeData(size: 22),
-          label: extend
-              ? const Text("Open")
-              : null, // The label of the main button.
+          label: extend ? const Text("Open") : null,
+          // The label of the main button.
           /// The active label of the main button, Defaults to label if not specified.
           activeLabel: extend ? const Text("Close") : null,
 
@@ -458,7 +465,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           shape: customDialRoot
               ? const RoundedRectangleBorder()
               : const StadiumBorder(),
-          // childMargin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           children: [
             SpeedDialChild(
               child: !rmicons ? const Icon(Icons.accessibility) : null,
@@ -484,6 +490,86 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               onTap: () => ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text(("Third Child Pressed")))),
               onLongPress: () => debugPrint('THIRD CHILD LONG PRESS'),
+            ),
+            SpeedDialChild(
+              child: !rmicons ? const Icon(Icons.accessibility) : null,
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              label: 'third',
+              onTap: () => setState(() => rmicons = !rmicons),
+              onLongPress: () => debugPrint('FIRST CHILD LONG PRESS'),
+            ),
+            SpeedDialChild(
+              child: !rmicons ? const Icon(Icons.accessibility) : null,
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              label: 'fourth',
+              onTap: () => setState(() => rmicons = !rmicons),
+              onLongPress: () => debugPrint('FIRST CHILD LONG PRESS'),
+            ),
+            SpeedDialChild(
+              child: !rmicons ? const Icon(Icons.accessibility) : null,
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              label: 'fifth',
+              onTap: () => setState(() => rmicons = !rmicons),
+              onLongPress: () => debugPrint('FIRST CHILD LONG PRESS'),
+            ),
+            SpeedDialChild(
+              child: !rmicons ? const Icon(Icons.accessibility) : null,
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              label: 'six',
+              onTap: () => setState(() => rmicons = !rmicons),
+              onLongPress: () => debugPrint('FIRST CHILD LONG PRESS'),
+            ),
+            SpeedDialChild(
+              child: !rmicons ? const Icon(Icons.accessibility) : null,
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              label: 'sevent',
+              onTap: () => setState(() => rmicons = !rmicons),
+              onLongPress: () => debugPrint('FIRST CHILD LONG PRESS'),
+            ),
+            SpeedDialChild(
+              child: !rmicons ? const Icon(Icons.accessibility) : null,
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              label: 'eighth',
+              onTap: () => setState(() => rmicons = !rmicons),
+              onLongPress: () => debugPrint('FIRST CHILD LONG PRESS'),
+            ),
+            SpeedDialChild(
+              child: !rmicons ? const Icon(Icons.accessibility) : null,
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              label: 'ninth',
+              onTap: () => setState(() => rmicons = !rmicons),
+              onLongPress: () => debugPrint('FIRST CHILD LONG PRESS'),
+            ),
+            SpeedDialChild(
+              child: !rmicons ? const Icon(Icons.accessibility) : null,
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              label: 'tenth',
+              onTap: () => setState(() => rmicons = !rmicons),
+              onLongPress: () => debugPrint('FIRST CHILD LONG PRESS'),
+            ),
+            SpeedDialChild(
+              child: !rmicons ? const Icon(Icons.accessibility) : null,
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              label: 'eleventh',
+              onTap: () => setState(() => rmicons = !rmicons),
+              onLongPress: () => debugPrint('FIRST CHILD LONG PRESS'),
+            ),
+            SpeedDialChild(
+              child: !rmicons ? const Icon(Icons.accessibility) : null,
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              label: 'tweleveth',
+              onTap: () => setState(() => rmicons = !rmicons),
+              onLongPress: () => debugPrint('FIRST CHILD LONG PRESS'),
             ),
           ],
         ),
