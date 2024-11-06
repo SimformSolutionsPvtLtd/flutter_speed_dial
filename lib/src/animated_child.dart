@@ -12,6 +12,7 @@ class AnimatedChild extends AnimatedWidget {
 
   final String? label;
   final TextStyle? labelStyle;
+  final int? labelMaxLines;
   final Color? labelBackgroundColor;
   final Widget? labelWidget;
 
@@ -54,14 +55,13 @@ class AnimatedChild extends AnimatedWidget {
     this.heroTag,
     required this.childMargin,
     required this.childPadding,
+    this.labelMaxLines,
   }) : super(key: key, listenable: animation);
 
   @override
   Widget build(BuildContext context) {
     final Animation<double> animation = listenable as Animation<double>;
-    bool dark = Theme
-        .of(context)
-        .brightness == Brightness.dark;
+    bool dark = Theme.of(context).brightness == Brightness.dark;
 
     void performAction([bool isLong = false]) {
       if (onTap != null && !isLong) {
@@ -109,13 +109,22 @@ class AnimatedChild extends AnimatedWidget {
             child: InkWell(
               onTap: performAction,
               onLongPress:
-              onLongPress == null ? null : () => performAction(true),
+                  onLongPress == null ? null : () => performAction(true),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   vertical: 5.0,
                   horizontal: 8.0,
                 ),
-                child: Text(label!, style: labelStyle),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.6,
+                  ),
+                  child: Text(
+                    label!,
+                    style: labelStyle,
+                    maxLines: labelMaxLines ?? 2,
+                  ),
+                )
               ),
             ),
           ),
@@ -124,19 +133,20 @@ class AnimatedChild extends AnimatedWidget {
     }
 
     Widget button = ScaleTransition(
-        scale: animation,
-        child: FloatingActionButton(
-          key: btnKey,
-          heroTag: heroTag,
-          onPressed: performAction,
-          backgroundColor:
-          backgroundColor ?? (dark ? Colors.grey[800] : Colors.grey[50]),
-          foregroundColor:
-          foregroundColor ?? (dark ? Colors.white : Colors.black),
-          elevation: elevation ?? 6.0,
-          shape: shape,
-          child: child,
-        ));
+      scale: animation,
+      child: FloatingActionButton(
+        key: btnKey,
+        heroTag: heroTag,
+        onPressed: performAction,
+        backgroundColor:
+            backgroundColor ?? (dark ? Colors.grey[800] : Colors.grey[50]),
+        foregroundColor:
+            foregroundColor ?? (dark ? Colors.white : Colors.black),
+        elevation: elevation ?? 6.0,
+        shape: shape,
+        child: child,
+      ),
+    );
 
     List<Widget> children = [
       if (label != null || labelWidget != null)
@@ -144,7 +154,9 @@ class AnimatedChild extends AnimatedWidget {
           scale: animation,
           child: Container(
             padding: (child == null)
-                ? const EdgeInsets.symmetric(vertical: 8)
+                ? const EdgeInsets.symmetric(
+                    vertical: 8,
+                  )
                 : null,
             key: (child == null) ? btnKey : null,
             child: buildLabel(),
@@ -158,46 +170,48 @@ class AnimatedChild extends AnimatedWidget {
           child: (onLongPress == null)
               ? button
               : FittedBox(
-            child: GestureDetector(
-              onLongPress: () => performAction(true),
-              child: button,
-            ),
-          ),
+                  child: GestureDetector(
+                    onLongPress: () => performAction(true),
+                    child: button,
+                  ),
+                ),
         )
     ];
 
     Widget buildColumnOrRow(bool isColumn,
         {CrossAxisAlignment? crossAxisAlignment,
-          MainAxisAlignment? mainAxisAlignment,
-          required List<Widget> children,
-          MainAxisSize? mainAxisSize}) {
+        MainAxisAlignment? mainAxisAlignment,
+        required List<Widget> children,
+        MainAxisSize? mainAxisSize}) {
       return isColumn
-          ? SingleChildScrollView(child: Column(
-        mainAxisSize: mainAxisSize ?? MainAxisSize.max,
-        mainAxisAlignment: mainAxisAlignment ?? MainAxisAlignment.start,
-        crossAxisAlignment:
-        crossAxisAlignment ?? CrossAxisAlignment.center,
-        children: children,
-      ),)
+          ? SingleChildScrollView(
+              child: Column(
+                mainAxisSize: mainAxisSize ?? MainAxisSize.max,
+                mainAxisAlignment: mainAxisAlignment ?? MainAxisAlignment.start,
+                crossAxisAlignment:
+                    crossAxisAlignment ?? CrossAxisAlignment.center,
+                children: children,
+              ),
+            )
           : Row(
-        mainAxisSize: mainAxisSize ?? MainAxisSize.max,
-        mainAxisAlignment: mainAxisAlignment ?? MainAxisAlignment.start,
-        crossAxisAlignment:
-        crossAxisAlignment ?? CrossAxisAlignment.center,
-        children: children,
-      );
+              mainAxisSize: mainAxisSize ?? MainAxisSize.max,
+              mainAxisAlignment: mainAxisAlignment ?? MainAxisAlignment.start,
+              crossAxisAlignment:
+                  crossAxisAlignment ?? CrossAxisAlignment.center,
+              children: children,
+            );
     }
 
     return visible
         ? Container(
-      margin: margin,
-      child: buildColumnOrRow(
-        useColumn,
-        mainAxisSize: MainAxisSize.min,
-        children:
-        switchLabelPosition ? children.reversed.toList() : children,
-      ),
-    )
+            margin: margin,
+            child: buildColumnOrRow(
+              useColumn,
+              mainAxisSize: MainAxisSize.min,
+              children:
+                  switchLabelPosition ? children.reversed.toList() : children,
+            ),
+          )
         : Container();
   }
 }

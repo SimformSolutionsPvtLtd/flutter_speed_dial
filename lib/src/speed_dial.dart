@@ -176,6 +176,8 @@ class SpeedDial extends StatefulWidget {
   /// Use mini fab for the speed dial
   final bool mini;
 
+  final int? labelMaxLines;
+
   const SpeedDial({
     Key? key,
     this.children = const [],
@@ -206,6 +208,7 @@ class SpeedDial extends StatefulWidget {
     this.animationAngle = pi / 2,
     this.iconTheme,
     this.label,
+    this.labelMaxLines,
     this.activeLabel,
     this.labelTransitionBuilder,
     this.onOpenBuilder,
@@ -575,6 +578,7 @@ class _ChildrensOverlay extends StatelessWidget {
             labelShadow: child.labelShadow,
             onTap: child.onTap,
             onLongPress: child.onLongPress,
+            labelMaxLines: child.labelMaxLines,
             toggleChildren: () {
               if (!widget.closeManually) toggleChildren();
             },

@@ -14,6 +14,8 @@ class SpeedDialChild {
   /// The style of the label
   final TextStyle? labelStyle;
 
+  final int? labelMaxLines;
+
   /// The background color of the label
   final Color? labelBackgroundColor;
 
@@ -60,5 +62,6 @@ class SpeedDialChild {
     this.onTap,
     this.onLongPress,
     this.shape,
+    this.labelMaxLines,
   });
 }
