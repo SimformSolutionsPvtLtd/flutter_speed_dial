@@ -1536,6 +1536,8 @@ class _ScrollableSelectionContainerDelegate
         //   _selectableEndEdgeUpdateRecords[selectable] = state.position.pixels;
         //   _selectableStartEdgeUpdateRecords[selectable] = state.position.pixels;
         break; // Added break statement
+      default:
+        break;
     }
     // Call the superclass method and return its result
     return super.dispatchSelectionEventToChild(selectable, event);
